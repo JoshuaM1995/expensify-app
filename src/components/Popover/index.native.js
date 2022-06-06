@@ -1,13 +1,11 @@
-import _ from 'underscore';
 import React from 'react';
-import {propTypes as popoverPropTypes, defaultProps} from './popoverPropTypes';
+import _ from 'underscore';
 import CONST from '../../CONST';
 import Modal from '../Modal';
-import {windowDimensionsPropTypes} from '../withWindowDimensions';
+import withWindowDimensions from '../withWindowDimensions';
+import {defaultProps, propTypes as popoverPropTypes} from './popoverPropTypes';
 
-const propTypes = {
-    ...(_.omit(popoverPropTypes, _.keys(windowDimensionsPropTypes))),
-};
+const propTypes = popoverPropTypes;
 
 /*
  * This is a convenience wrapper around the Modal component for a responsive Popover.
@@ -17,14 +15,16 @@ const Popover = (props) => {
     const propsWithoutAnimation = _.omit(props, ['animationIn', 'animationOut', 'popoverAnchorPosition', 'disableAnimation']);
     return (
         <Modal
-            type={props.fromSidebarMediumScreen ? CONST.MODAL.MODAL_TYPE.POPOVER : CONST.MODAL.MODAL_TYPE.BOTTOM_DOCKED}
-            popoverAnchorPosition={props.fromSidebarMediumScreen ? props.anchorPosition : undefined}
+            type={!props.isSmallScreenWidth ? CONST.MODAL.MODAL_TYPE.POPOVER : CONST.MODAL.MODAL_TYPE.BOTTOM_DOCKED}
+            popoverAnchorPosition={!props.isSmallScreenWidth ? props.anchorPosition : undefined}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...propsWithoutAnimation}
 
             // Mobile will always has fullscreen menu
             // eslint-disable-next-line react/jsx-props-no-multi-spaces
             fullscreen
+            animationInTiming={props.disableAnimation && !props.isSmallScreenWidth ? 1 : props.animationInTiming}
+            animationOutTiming={props.disableAnimation && !props.isSmallScreenWidth ? 1 : props.animationOutTiming}
         />
     );
 };
@@ -33,4 +33,4 @@ Popover.propTypes = propTypes;
 Popover.defaultProps = defaultProps;
 Popover.displayName = 'Popover';
 
-export default Popover;
+export default withWindowDimensions(Popover);

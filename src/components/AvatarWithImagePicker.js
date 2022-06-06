@@ -192,7 +192,7 @@ class AvatarWithImagePicker extends React.Component {
                             : (
                                 <DefaultAvatar />
                             )}
-                        <AttachmentPicker type={CONST.ATTACHMENT_PICKER_TYPE.IMAGE}>
+                        <AttachmentPicker type={CONST.ATTACHMENT_PICKER_TYPE.IMAGE} anchorPosition={this.props.anchorPosition}>
                             {({openPicker}) => (
                                 <>
                                     {
