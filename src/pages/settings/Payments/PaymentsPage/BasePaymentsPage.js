@@ -125,9 +125,21 @@ class BasePaymentsPage extends React.Component {
      * @param {Boolean} isDefault
      */
     paymentMethodPressed(event, accountType, account, isDefault) {
-        const position = getClickedElementLocation(event);
+        const position = getClickedElementLocation({
+            ...event.nativeEvent,
+
+            // TODO: Add actual data
+            absolutePosition: {
+                y: 100,
+                x: 0,
+                height: 0,
+                width: 0,
+            },
+        });
         this.setState({
-            addPaymentMethodButton: event.nativeEvent,
+            addPaymentMethodButton: {
+                ...event.nativeEvent,
+            },
         });
         if (accountType) {
             let formattedSelectedPaymentMethod;

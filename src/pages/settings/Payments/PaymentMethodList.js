@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import React, {Component} from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import {FlatList} from 'react-native';
 import {withOnyx} from 'react-native-onyx';
@@ -88,6 +88,7 @@ class PaymentMethodList extends Component {
         super(props);
 
         this.renderItem = this.renderItem.bind(this);
+        this.flatListRef = createRef(null);
     }
 
     /**
@@ -127,7 +128,16 @@ class PaymentMethodList extends Component {
         combinedPaymentMethods = _.map(combinedPaymentMethods, paymentMethod => ({
             ...paymentMethod,
             type: MENU_ITEM,
-            onPress: e => this.props.onPress(e, paymentMethod.accountType, paymentMethod.accountData, paymentMethod.isDefault),
+            onPress: (e) => {
+                this.flatListRef.current.measureInWindow((x, y, width, height) => {
+                    this.props.onPress({
+                        ...e,
+                        absolutePosition: {
+                            x, y, width, height,
+                        },
+                    }, paymentMethod.accountType, paymentMethod.accountData, paymentMethod.isDefault);
+                });
+            },
             iconFill: this.isPaymentMethodActive(paymentMethod) ? StyleUtils.getIconFillColor(CONST.BUTTON_STATES.PRESSED) : null,
             wrapperStyle: this.isPaymentMethodActive(paymentMethod) ? [StyleUtils.getButtonBackgroundColorStyle(CONST.BUTTON_STATES.PRESSED)] : null,
         }));
@@ -161,7 +171,19 @@ class PaymentMethodList extends Component {
             icon: Expensicons.CreditCard,
             style: [styles.mh4],
             iconStyles: [styles.mr4],
-            onPress: e => this.props.onPress(e),
+            onPress: (e) => {
+                this.flatListRef.current.measureInWindow((x, y, width, height) => {
+                    this.props.onPress({
+                        ...e,
+                        nativeEvent: {
+                            ...e.nativeEvent,
+                            absolutePosition: {
+                                x, y, width, height,
+                            },
+                        },
+                    });
+                });
+            },
             isDisabled: this.props.isLoadingPayments,
             shouldShowRightIcon: true,
             success: true,
@@ -193,6 +215,7 @@ class PaymentMethodList extends Component {
         if (item.type === MENU_ITEM) {
             return (
                 <MenuItem
+                    ref={this.flatListRef}
                     onPress={item.onPress}
                     title={item.title}
                     description={item.description}
@@ -211,6 +234,7 @@ class PaymentMethodList extends Component {
         if (item.type === BUTTON) {
             return (
                 <Button
+                    ref={this.flatListRef}
                     text={item.text}
                     icon={item.icon}
                     onPress={item.onPress}
@@ -227,6 +251,7 @@ class PaymentMethodList extends Component {
         return (
             <Text
                 style={[styles.popoverMenuItem]}
+                ref={this.flatListRef}
             >
                 {item.text}
             </Text>
@@ -236,6 +261,8 @@ class PaymentMethodList extends Component {
     render() {
         return (
             <FlatList
+
+                // ref={this.flatListRef}
                 data={this.createPaymentMethodList()}
                 renderItem={this.renderItem}
                 keyExtractor={item => item.key}

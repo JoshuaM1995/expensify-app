@@ -5,6 +5,7 @@
  * @returns {Object}
  */
 function getClickedElementLocation(nativeEvent) {
+    console.log('getClickedElementLocation', { nativeEvent });
     return {
         bottom: nativeEvent.absolutePosition.y + nativeEvent.absolutePosition.height,
         left: nativeEvent.absolutePosition.x,
